@@ -1,15 +1,16 @@
 # ADSL 拨号服务器,搭建配置文件
 
+### squid
 * 购买云立方的vps服务器
 
-系统：centos 7
+* 系统：centos 7
 
 1. 配置代理服务器：
 
 ```python
 adsl-start    #启动
 ```
-2.　安装squid和httpd
+2. 安装squid和httpd
 
 ```python
 yum install -y squid
@@ -17,7 +18,7 @@ yum install httpd-tools -y
 yum install openssl
 ```
 
-3.  修改配置文件
+3. 修改配置文件
 
 ```python
 vi /etc/squid/squid.conf
@@ -25,7 +26,7 @@ vi /etc/squid/squid.conf
 将里面的内容全部替换成下面的内容,直接复制替换掉就ok
 [https://github.com/Derek520/ADSL/blob/master/squid.conf](https://github.com/Derek520/ADSL/blob/master/squid.conf)
 
-4.　生成用户名和密码
+4. 生成用户名和密码
 
 ```python
 htpasswd -c /etc/squid/passwd testadsl       #创建一个密码文件名为passwd，账号名为airoot的密码文件
@@ -139,7 +140,57 @@ systemctl restart squid.service
 
 ```python
 ifconfig
-网卡：ppp0 ip　xxx.xxx.xxx.xxx
+网卡：ppp0 ip　xxx.xxx.xxx.xxx airoot:123456是第四步生成的用户和密码
 curl -x xxx.xxx.xxx.xxx:3828 -U airoot:123456 www.baidu.com
 ```
 
+### 第二种：TinyProxy
+
+1. 这个很简单，直接安装
+
+```python
+yum install -y epel-release
+yum update -y
+yum install -y tinyproxy
+```
+
+2. 配置TinyProxy
+
+```python
+vim /etc/tinyproxy/tinyproxy.conf
+
+#端口
+Port 8888
+#　注释掉是允许所有ip访问  
+#Allow 127.0.0.1 
+# 注释掉下面这行，隐藏掉Via请求头部
+DisableViaHeader Yes
+```
+
+3. 更多配置项，下面是列举一些配置文件默认的，不需要配置：
+
+```python
+PidFile "/var/run/tinyproxy/tinyproxy.pid"
+LogFile "/var/log/tinyproxy/tinyproxy.log"
+LogLevel Info
+MaxClients 100
+MinSpareServers 5
+MaxSpareServers 20
+StartServers 10
+```
+
+4. 命令，启动即可:
+
+```python
+systemctl start tinyproxy.service 
+systemctl restart tinyproxy.service 
+systemctl stop tinyproxy.service 
+systemctl status tinyproxy.service 
+systemctl enable tinyproxy.service 
+```
+
+5. 测试
+
+```python
+curl -x xxx.xxx.xxx.xxx:3828 www.baidu.com
+```
