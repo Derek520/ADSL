@@ -23,7 +23,8 @@ yum install openssl
 ```python
 vi /etc/squid/squid.conf
 ```
-将里面的内容全部替换成下面的内容,直接复制替换掉就ok
+将里面的内容全部替换成下面的内容,直接复制替换掉就ok  
+
 [https://github.com/Derek520/ADSL/blob/master/squid.conf](https://github.com/Derek520/ADSL/blob/master/squid.conf)
 
 4. 生成用户名和密码
