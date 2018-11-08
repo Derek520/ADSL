@@ -215,7 +215,7 @@ pip install -r api.txt  #如果没有pip　需要安装pip
 - 需要修改配置文件中的redis信息,
 
 ```python
-NETWORK = 'ppp0'
+NETWORK = 'ppp0'    # 拨号后网卡名字
 REDIS_HOST = ""
 REDIS_PORT = 6380
 REDIS_DB = 11
