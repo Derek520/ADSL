@@ -195,3 +195,44 @@ systemctl enable tinyproxy.service
 ```python
 curl -x xxx.xxx.xxx.xxx:3828 www.baidu.com
 ```
+
+### 事件驱动接口
+> 网上好多都是给adsl服务器,做个定时任务,定时拨号,将新ip存入远端redis;个人不喜欢这种方式,我写的事件驱动,发送请求过去后,再拨号；
+
+设计:  
+    用flask写个接口,使用python2,不要问为什么不用python3,实在是服务器太小,只写个接口接收请求,既然自带了python2,就懒得换了
+    当ip被封时,需要删除该ip获取新的ip；使用被封的ip发送get请求，adsl服务器收到请求后，删除对应服务器ip,并停止接口;因为一旦重新拨号,该接口就失效，需要重启改接口;
+    创建shell脚本,进行死循环监控api接口,是否在运行,若是停止运行,说明接口收到拨号请求;重新拨号,将获取到的ip,存进远端redis数据库,再重启api接口,等待下一次请求；
+    
+1. 只需要安装　api.txt中包,就可以
+
+```python
+pip install -r api.txt  #如果没有pip　需要安装pip
+```
+
+2. 将clinet文件下载,放在adsl服务器上:
+
+- 需要修改配置文件中的redis信息,
+
+```python
+REDIS_HOST = ""
+REDIS_PORT = 6380
+REDIS_DB = 11
+REDIS_PASSWORD = ''
+
+# hash存储
+KEY = 'proxies'
+FIELD = 'a1'
+```
+
+```python
+# 进入目录
+cd  clinet
+#　保证文件可执行 
+chmod +x process.sh
+# 进行后台运行,运行时，需要保证后台没有process在运行，如果有kill掉，再启动
+nohup ./process.sh >process.log 2>&1 &
+# 查看实时输出log
+tail -f process.log
+```
+3. 查看自己配置的redis库中是否有ip
